@@ -3,12 +3,11 @@
 
 ---
 # disky
-### Find your biggest diskspace thieves!
+### 找出占用你磁盘空间最多的文件！
 
 ---
 
-[![license: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/newhinton/disky/blob/master/LICENSE) [![Latest Downloads](https://img.shields.io/github/downloads/newhinton/disky/latest/total
-)](https://github.com/newhinton/disky/releases) [![GitHub release](https://img.shields.io/github/v/release/newhinton/disky?include_prereleases)](https://github.com/newhinton/disky/releases/latest)
+[![license: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/newhinton/disky/blob/master/LICENSE) [![Latest Downloads](https://img.shields.io/github/downloads/newhinton/disky/latest/total)](https://github.com/newhinton/disky/releases) [![GitHub release](https://img.shields.io/github/v/release/newhinton/disky?include_prereleases)](https://github.com/newhinton/disky/releases/latest)
 [![supportive flags](https://img.shields.io/badge/support-🇺🇦_🏳️‍⚧_🏳️‍🌈-4aad4e)](https://felixnuesse.de/disky) [![Android Lint](https://github.com/newhinton/disky/actions/workflows/lint.yml/badge.svg?branch=master)](https://github.com/newhinton/disky/actions/workflows/lint.yml)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
@@ -18,11 +17,11 @@ height="80">](https://f-droid.org/packages/de.felixnuesse.disky)
 </div>
 
 -----------
-A filesystem analyzer that can show you the usage of your storage!
+一个文件系统分析工具，可以帮你查看存储空间的使用情况！
 <br/>
 <br/>
 
-Screenshots
+截图
 -----------
 
 <table align="center">
@@ -39,34 +38,28 @@ Screenshots
   </tr>
 </table>
 
-
-
-
-Features
+特性
 --------
 
-- **Fast** Even larger devices can be scanned in mere seconds!
-- **Multi Storage** All your local filesystems are supported!
-- **Material You** Fits your device's theme!
+- **快速** 即使是较大的设备，也能在几秒钟内完成扫描！
+- **多存储支持** 支持所有本地文件系统！
+- **Material You** 适配您设备的主题！
 
-Installation
+安装
 ------------
-Grab the [latest version](https://github.com/newhinton/disky/releases/latest) of the signed APK and install it on your phone.
+获取[最新版本](https://github.com/newhinton/disky/releases/latest)的签名 APK，然后安装到您的手机上。
 
-
-Developing
+开发
 ------------
 
-You should first make sure you have cloned this repository:
-
+首先，请确保您已克隆此仓库：
 
 ```sh
 git clone https://github.com/newhinton/disky
 
 ```
 
-
-You can then build the app normally from Android Studio or from CLI by running:
+然后，您可以通过 Android Studio 或 CLI 正常构建应用：
 
 ```sh
 # build
@@ -74,36 +67,31 @@ You can then build the app normally from Android Studio or from CLI by running:
 
 ```
 
-
-Contributing
+贡献
 ------------
-See [CONTRIBUTING](./CONTRIBUTING.md)
+请参阅 [CONTRIBUTING](./CONTRIBUTING.md)
 
-Anyone is welcome to contribute and help out. However, hate, discrimination and racism are decidedly unwelcome here. If you feel offended by this, you might belong to the group of people who are not welcome. I will not tolerate hate in any way.
+欢迎任何人贡献代码和提供帮助。但是，仇恨、歧视和种族主义在本项目中绝对不受欢迎。如果您对此感到冒犯，那么您可能属于不受欢迎的人群。我绝不容忍任何形式的仇恨。
 
-
-Donations
+捐赠
 ------------
 
-If you like my work, either this app or in general, you are more than welcome to leave a donation.
-It helps me to dedicate time to further improve my apps!
+如果您喜欢我的工作，无论是这个应用还是其他项目，欢迎进行捐赠。
+这有助于我投入更多时间来进一步改进我的应用！
 
 [Paypal](https://www.paypal.com/paypalme/felixnuesse) | [Liberapay](https://liberapay.com/newhinton) | [Github Sponsor](https://github.com/sponsors/newhinton)
 
-
-About this app
+关于此应用
 -----------------
-### License
-This app is released under the terms of the [GPLv3 license](https://gitea.felixnuesse.de/felix/disky/blob/master/LICENSE). 
-There are older releases that accidentially contained the wrong license file, namely MIT.
-This entire Repository is and was GPLv3, as stated by this Readme in this section, and the pill below the title on top of this document.
-It was also stated in the app itself.
+### 许可证
+本应用根据 [GPLv3 许可证](https://gitea.felixnuesse.de/felix/disky/blob/master/LICENSE) 的条款发布。
+有些旧版本意外包含了错误的许可证文件（MIT）。
+正如本文档顶部标题下方的徽章以及本部分的说明所述，整个仓库始终是 GPLv3 许可证。
+应用内部也有相应说明。
 
+### 依赖库
+- [AppIntro](https://github.com/AppIntro/AppIntro) - 这个库负责应用的易用性介绍！
+- [Lottie](https://github.com/airbnb/lottie-android) - 这个库使精美的动画成为可能！
+- [Undraw](https://undraw.co/) - 严格来说不是一个库，但没有 Undraw 的图片，这个应用就不会是现在的样子！
 
-
-### Libraries
-- [AppIntro](https://github.com/AppIntro/AppIntro) - This library is responsible for the easy-to-use introduction to the app!
-- [Lottie](https://github.com/airbnb/lottie-android) - This library makes the fancy animation possible!
-- [Undraw](https://undraw.co/) - Not really a library, but without Undraw's Images, this app wouldn't be the same!
-
-Thanks to all of them! 
+感谢所有这些项目！
