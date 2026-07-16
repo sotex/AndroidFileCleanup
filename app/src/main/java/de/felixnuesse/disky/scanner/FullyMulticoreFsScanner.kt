@@ -3,6 +3,7 @@ package de.felixnuesse.disky.scanner
 import android.net.Uri
 import android.util.Log
 import de.felixnuesse.disky.extensions.tag
+import de.felixnuesse.disky.model.FileCategory
 import de.felixnuesse.disky.model.StorageBranch
 import de.felixnuesse.disky.model.StorageLeaf
 import de.felixnuesse.disky.model.StoragePrototype
@@ -22,6 +23,7 @@ class FullyMulticoreFsScanner(var callback: ScannerCallback?): ScannerInterface 
 
     val executor = Executors.newWorkStealingPool(cores) as ExecutorService
     var lastScan = 0L
+    private val metadataExtractor = FileMetadataExtractor()
 
     fun submit(task: StoragePrototype) {
         executor.submit {
@@ -68,8 +70,7 @@ class FullyMulticoreFsScanner(var callback: ScannerCallback?): ScannerInterface 
                 return folder
             }
             if(it.isFile){
-                val fe = StorageLeaf(it.name, StorageType.FILE, it.length())
-                fe.uri = Uri.fromFile(it).toString()
+                val fe = createStorageLeaf(it)
                 fe.parent=folder
                 folder.addChildren(fe)
                 callback?.foundLeaf(fe.getCalculatedSize())
@@ -82,5 +83,40 @@ class FullyMulticoreFsScanner(var callback: ScannerCallback?): ScannerInterface 
             }
         }
         return folder
+    }
+
+    private fun createStorageLeaf(file: File): StorageLeaf {
+        val category = metadataExtractor.getFileCategory(file)
+        val extension = metadataExtractor.getFileExtension(file)
+        
+        val leaf = StorageLeaf(
+            leafname = file.name,
+            leafStorageType = StorageType.FILE,
+            size = file.length(),
+            fileCategory = category,
+            fileExtension = extension
+        )
+        leaf.uri = Uri.fromFile(file).toString()
+
+        when (category) {
+            FileCategory.AUDIO -> {
+                val audioMetadata = metadataExtractor.extractAudioMetadata(file)
+                leaf.audioDuration = audioMetadata.duration
+            }
+            FileCategory.VIDEO -> {
+                val videoMetadata = metadataExtractor.extractVideoMetadata(file)
+                leaf.videoDuration = videoMetadata.duration
+                leaf.videoWidth = videoMetadata.width
+                leaf.videoHeight = videoMetadata.height
+            }
+            FileCategory.IMAGE -> {
+                val imageMetadata = metadataExtractor.extractImageMetadata(file)
+                leaf.imageWidth = imageMetadata.width
+                leaf.imageHeight = imageMetadata.height
+            }
+            else -> {}
+        }
+
+        return leaf
     }
 }

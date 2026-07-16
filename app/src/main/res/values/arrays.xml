@@ -21,4 +21,32 @@
         <item>@string/lowStorageCheckThreshold_25</item>
         <item>@string/lowStorageCheckThreshold_30</item>
     </string-array>
+
+    <string-array name="size_options">
+        <item>@string/size_option_none</item>
+        <item>@string/size_option_1mb</item>
+        <item>@string/size_option_10mb</item>
+        <item>@string/size_option_50mb</item>
+        <item>@string/size_option_100mb</item>
+        <item>@string/size_option_500mb</item>
+        <item>@string/size_option_1gb</item>
+    </string-array>
+
+    <string-array name="duration_options">
+        <item>@string/duration_option_none</item>
+        <item>@string/duration_option_1min</item>
+        <item>@string/duration_option_5min</item>
+        <item>@string/duration_option_10min</item>
+        <item>@string/duration_option_30min</item>
+        <item>@string/duration_option_1hour</item>
+    </string-array>
+
+    <string-array name="resolution_options">
+        <item>@string/resolution_option_none</item>
+        <item>@string/resolution_option_sd</item>
+        <item>@string/resolution_option_hd</item>
+        <item>@string/resolution_option_fhd</item>
+        <item>@string/resolution_option_2k</item>
+        <item>@string/resolution_option_4k</item>
+    </string-array>
 </resources>

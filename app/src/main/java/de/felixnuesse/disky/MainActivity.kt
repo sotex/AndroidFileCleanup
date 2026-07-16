@@ -43,11 +43,14 @@ import de.felixnuesse.disky.model.NoItems
 import de.felixnuesse.disky.model.StoragePrototype
 import de.felixnuesse.disky.model.StorageResult
 import de.felixnuesse.disky.model.StorageType
+import de.felixnuesse.disky.scanner.FilterManager
 import de.felixnuesse.disky.scanner.ResultRepository
 import de.felixnuesse.disky.scanner.ScanCompleteCallback
 import de.felixnuesse.disky.ui.BottomSheet
 import de.felixnuesse.disky.ui.ChangeFolderCallback
+import de.felixnuesse.disky.ui.FilterBottomSheet
 import de.felixnuesse.disky.ui.RecyclerViewAdapter
+import de.felixnuesse.disky.ui.dialogs.CleanupDialog
 import de.felixnuesse.disky.utils.PermissionManager
 import de.felixnuesse.disky.worker.BackgroundWorker
 import de.felixnuesse.disky.ui.utils.LottieColorizer.Companion.colorizeLottie
@@ -57,7 +60,7 @@ import org.woheller69.freeDroidWarn.FreeDroidWarn
 import timber.log.Timber
 
 
-class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCallback {
+class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCallback, RecyclerViewAdapter.SelectionCallback {
 
     private lateinit var binding: ActivityMainBinding
 
@@ -68,6 +71,9 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
     private var selectedStorage = ""
 
     private var lastScanStarted = 0L
+
+    private lateinit var filterManager: FilterManager
+    private var currentAdapter: RecyclerViewAdapter? = null
 
     companion object {
         const val APP_PREFERENCES = "APP_PREFERENCES"
@@ -132,6 +138,16 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
             binding.storageSelector.visibility = View.GONE
         }
 
+        filterManager = FilterManager()
+
+        binding.buttonCancelSelection.setOnClickListener {
+            exitSelectionMode()
+        }
+
+        binding.buttonDeleteSelected.setOnClickListener {
+            deleteSelectedItems()
+        }
+
         registerReceiver()
         if (isIntroComplete) {
             refreshData()
@@ -183,6 +199,14 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
             currentElement?.let { changeFolder(it) }
             return true
         }
+        if (id == R.id.action_filter) {
+            showFilterBottomSheet()
+            return true
+        }
+        if (id == R.id.action_select_all) {
+            currentAdapter?.selectAll()
+            return true
+        }
         if (id == R.id.action_settings) {
             val bl = BottomSheet()
             bl.show(supportFragmentManager, BottomSheet.TAG)
@@ -200,7 +224,15 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
 
     override fun changeFolder(folder: StoragePrototype) {
         Timber.e("changeFolder")
+        exitSelectionMode()
         showFolder(folder)
+    }
+
+    override fun onSelectionChanged(count: Int) {
+        if (count > 0 && !currentAdapter?.isSelectionMode()!!) {
+            enterSelectionMode()
+        }
+        binding.selectionCount.text = getString(R.string.selection_count, count)
     }
 
     override fun scanComplete(result: StorageResult) {
@@ -527,8 +559,39 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
             children.add(NoItems())
         }
 
-        val recyclerViewAdapter = RecyclerViewAdapter(this, children, this)
-        recyclerView.adapter = recyclerViewAdapter
+        currentAdapter = RecyclerViewAdapter(this, children, this, this)
+        recyclerView.adapter = currentAdapter
+    }
+
+    private fun showFilterBottomSheet() {
+        val filterBottomSheet = FilterBottomSheet(filterManager, object : FilterBottomSheet.FilterCallback {
+            override fun onFilterApplied(filterManager: FilterManager) {
+                currentElement?.let { showFolder(it) }
+            }
+        })
+        filterBottomSheet.show(supportFragmentManager, FilterBottomSheet.TAG)
+    }
+
+    private fun enterSelectionMode() {
+        currentAdapter?.setSelectionMode(true)
+        binding.selectionToolbar.visibility = View.VISIBLE
+        binding.overview.visibility = View.GONE
+        supportActionBar?.hide()
+    }
+
+    private fun exitSelectionMode() {
+        currentAdapter?.setSelectionMode(false)
+        binding.selectionToolbar.visibility = View.GONE
+        binding.overview.visibility = View.VISIBLE
+        supportActionBar?.show()
+    }
+
+    private fun deleteSelectedItems() {
+        val selectedItems = currentAdapter?.getSelectedItems()
+        if (!selectedItems.isNullOrEmpty()) {
+            CleanupDialog(this, selectedItems).askDelete()
+            exitSelectionMode()
+        }
     }
 }
 

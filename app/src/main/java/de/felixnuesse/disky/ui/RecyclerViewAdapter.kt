@@ -44,8 +44,19 @@ import com.bumptech.glide.request.RequestListener
 import java.net.URI
 
 
-class RecyclerViewAdapter(private var mContext: Context, private val folders: List<StoragePrototype>, var callback: ChangeFolderCallback?):
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class RecyclerViewAdapter(
+    private var mContext: Context,
+    private val folders: List<StoragePrototype>,
+    var callback: ChangeFolderCallback?,
+    var selectionCallback: SelectionCallback?
+): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var isSelectionMode = false
+    private val selectedItems = mutableSetOf<StoragePrototype>()
+
+    interface SelectionCallback {
+        fun onSelectionChanged(count: Int)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(StorageType.fromInt(viewType)) {
@@ -71,10 +82,12 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
                 with(folders[position]){
                     val branch = folders[position] as StorageBranch
                     binding.title.text = name
-                    // the recyclerview does not reenable the title on scroll.
                     binding.title.isEnabled = true
                     binding.size.text = readableFileSize(getCalculatedSize())
                     binding.progressBar.progress = percent
+
+                    binding.checkbox.visibility = if (isSelectionMode && storageType == StorageType.FOLDER) View.VISIBLE else View.GONE
+                    binding.checkbox.isChecked = selectedItems.contains(this)
 
                     if(storageType == StorageType.APP_COLLECTION) {
                         setImage(R.drawable.icon_apps)
@@ -97,6 +110,7 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
                         enableDeletion()
                     }
                     setChangeFolderCallbackTarget(this)
+                    setSelectionCallbackTarget(this)
                 }
             }
         } else if (holder is GoBackView) {
@@ -112,6 +126,9 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
                 with(folders[position] as StorageLeaf){
                     binding.title.text = name
                     binding.size.text = readableFileSize(getCalculatedSize())
+
+                    binding.checkbox.visibility = if (isSelectionMode && storageType == StorageType.FILE) View.VISIBLE else View.GONE
+                    binding.checkbox.isChecked = selectedItems.contains(this)
 
                     val leaf = this
                     when(StorageType.fromInt(holder.itemViewType)) {
@@ -139,7 +156,6 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
                             binding.leafImage.visibility = View.VISIBLE
                             binding.leafImageUntinted.visibility = View.GONE
                             try {
-
                                 Glide.with(mContext)
                                     .load(File(URI.create(leaf.uri)))
                                     .thumbnail(0.4f)
@@ -154,8 +170,6 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
                                         }
 
                                         override fun onResourceReady(resource: Drawable, model: Any, target: com.bumptech.glide.request.target.Target<Drawable?>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
-                                            // make it invisible, so that the rest of the layout does not shift
-                                            // since its stuck to the image
                                             binding.leafImage.visibility = View.INVISIBLE
                                             binding.leafImageUntinted.visibility = View.VISIBLE
                                             return false
@@ -170,6 +184,7 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
                         }
                         else -> {}
                     }
+                    setSelectionCallbackTarget(this)
                 }
             }
         }
@@ -179,9 +194,59 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
         return folders[position].storageType.ordinal
     }
 
-
     override fun getItemCount(): Int {
         return folders.size
+    }
+
+    fun setSelectionMode(enabled: Boolean) {
+        isSelectionMode = enabled
+        if (!enabled) {
+            selectedItems.clear()
+            selectionCallback?.onSelectionChanged(0)
+        }
+        notifyDataSetChanged()
+    }
+
+    fun isSelectionMode(): Boolean {
+        return isSelectionMode
+    }
+
+    fun toggleSelection(item: StoragePrototype) {
+        if (selectedItems.contains(item)) {
+            selectedItems.remove(item)
+        } else {
+            selectedItems.add(item)
+        }
+        selectionCallback?.onSelectionChanged(selectedItems.size)
+        notifyDataSetChanged()
+    }
+
+    fun selectAll() {
+        folders.forEach {
+            if (it is StorageLeaf || (it is StorageBranch && it.storageType == StorageType.FOLDER)) {
+                selectedItems.add(it)
+            }
+        }
+        selectionCallback?.onSelectionChanged(selectedItems.size)
+        notifyDataSetChanged()
+    }
+
+    fun deselectAll() {
+        selectedItems.clear()
+        selectionCallback?.onSelectionChanged(0)
+        notifyDataSetChanged()
+    }
+
+    fun getSelectedItems(): List<StoragePrototype> {
+        return selectedItems.toList()
+    }
+
+    fun getSelectedItemCount(): Int {
+        return selectedItems.size
+    }
+
+    fun getSelectedTotalSize(): Long {
+        return selectedItems.sumOf { it.getCalculatedSize() }
     }
 
     inner class FolderView(var binding: ItemFolderEntryBinding): RecyclerView.ViewHolder(binding.root), PopupMenu.OnMenuItemClickListener {
@@ -239,17 +304,30 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
             }
         }
 
-
         fun setImage(resource: Int) {
             binding.imageView.setImageDrawable(AppCompatResources.getDrawable(mContext, resource))
         }
 
         fun setChangeFolderCallbackTarget(folder: StoragePrototype) {
             binding.linearLayout.setOnClickListener {
-                callback?.changeFolder(folder)
+                if (!isSelectionMode) {
+                    callback?.changeFolder(folder)
+                }
+            }
+        }
+
+        fun setSelectionCallbackTarget(item: StoragePrototype) {
+            binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedItems.add(item)
+                } else {
+                    selectedItems.remove(item)
+                }
+                selectionCallback?.onSelectionChanged(selectedItems.size)
             }
         }
     }
+
     inner class LeafView(var binding: ItemLeafEntryBinding): RecyclerView.ViewHolder(binding.root), PopupMenu.OnMenuItemClickListener {
 
         var leafItem: StorageLeaf? = null
@@ -279,6 +357,7 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
         fun enableDeletion() {
             popupMenuEnableDeletion = true
         }
+
         fun setImage(resource: Int) {
             binding.leafImage.setImageDrawable(AppCompatResources.getDrawable(mContext, resource))
         }
@@ -313,6 +392,17 @@ class RecyclerViewAdapter(private var mContext: Context, private val folders: Li
                 else -> {
                     false
                 }
+            }
+        }
+
+        fun setSelectionCallbackTarget(item: StoragePrototype) {
+            binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedItems.add(item)
+                } else {
+                    selectedItems.remove(item)
+                }
+                selectionCallback?.onSelectionChanged(selectedItems.size)
             }
         }
     }

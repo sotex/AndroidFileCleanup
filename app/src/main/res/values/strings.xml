@@ -105,4 +105,60 @@
     <string name="icon_warning_content_description">Warning Icon in red, Circle with an Exclamation Mark</string>
     <string name="warning_storage_permission_missing">Warning! We do not have access to scan all your files! This will create nonsense-results!</string>
     <string name="warning_appusage_permission_missing">Warning! We are not allowed to scan your apps. Apps will now be counted as system usage!</string>
+
+    <string name="filter_title">筛选条件</string>
+    <string name="filter_type">文件类型</string>
+    <string name="filter_size">文件大小</string>
+    <string name="filter_size_min">最小</string>
+    <string name="filter_size_max">最大</string>
+    <string name="filter_duration">时长</string>
+    <string name="filter_duration_min">最短</string>
+    <string name="filter_duration_max">最长</string>
+    <string name="filter_resolution">分辨率</string>
+    <string name="filter_resolution_hint">选择最小分辨率</string>
+    <string name="filter_reset">重置</string>
+    <string name="filter_apply">应用</string>
+
+    <string name="file_category_audio">音频</string>
+    <string name="file_category_video">视频</string>
+    <string name="file_category_image">图片</string>
+    <string name="file_category_document">文档</string>
+    <string name="file_category_archive">压缩包</string>
+    <string name="file_category_apk">安装包</string>
+
+    <string name="size_option_none">不限制</string>
+    <string name="size_option_1mb">1 MB</string>
+    <string name="size_option_10mb">10 MB</string>
+    <string name="size_option_50mb">50 MB</string>
+    <string name="size_option_100mb">100 MB</string>
+    <string name="size_option_500mb">500 MB</string>
+    <string name="size_option_1gb">1 GB</string>
+
+    <string name="duration_option_none">不限制</string>
+    <string name="duration_option_1min">1 分钟</string>
+    <string name="duration_option_5min">5 分钟</string>
+    <string name="duration_option_10min">10 分钟</string>
+    <string name="duration_option_30min">30 分钟</string>
+    <string name="duration_option_1hour">1 小时</string>
+
+    <string name="resolution_option_none">不限制</string>
+    <string name="resolution_option_sd">标清 (480p)</string>
+    <string name="resolution_option_hd">高清 (720p)</string>
+    <string name="resolution_option_fhd">全高清 (1080p)</string>
+    <string name="resolution_option_2k">2K</string>
+    <string name="resolution_option_4k">4K</string>
+
+    <string name="cleanup_title">批量删除</string>
+    <string name="cleanup_confirmation_text">确定要删除选中的项目吗？此操作无法撤销！</string>
+    <string name="cleanup_file_count">文件数量: %1$d</string>
+    <string name="cleanup_folder_count">文件夹数量: %1$d</string>
+    <string name="cleanup_total_size">总大小: %1$s</string>
+    <string name="cleanup_result_title">删除完成</string>
+    <string name="cleanup_result_success">成功删除 %1$d 个项目</string>
+    <string name="cleanup_result_partial">成功删除 %1$d 个项目，%2$d 个项目删除失败</string>
+
+    <string name="select_all">全选</string>
+    <string name="cancel_selection">取消选择</string>
+    <string name="delete_selected">删除选中</string>
+    <string name="selection_count">已选择 %1$d 项</string>
 </resources>
