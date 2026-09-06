@@ -26,13 +26,11 @@ class IntroActivity : AppIntro(), SlideLeaveInterface {
         private const val SLIDE_ID_WELCOME = "SLIDE_ID_WELCOME"
         private const val SLIDE_ID_STORAGE = "SLIDE_ID_STORAGE"
         private const val SLIDE_ID_NOTIFICATIONS = "SLIDE_ID_NOTIFICATIONS"
-        private const val SLIDE_ID_USAGEACCESS = "SLIDE_ID_USAGEACCESS"
         private const val SLIDE_ID_SUCCESS = "SLIDE_ID_SUCCESS"
     }
 
     private var mPermissions = PermissionManager(this)
     private var color = R.color.intro_color1
-    private var mRequestedAppusagePermissions = false
 
     private var mCurrentSlideId = ""
 
@@ -58,10 +56,6 @@ class IntroActivity : AppIntro(), SlideLeaveInterface {
                 if(mPermissions.grantedStorage()) {
                     this.goToNextSlide()
                 }
-            }
-            SLIDE_ID_USAGEACCESS -> {
-                // this is optional, just skip it when resuming.
-                this.goToNextSlide()
             }
         }
     }
@@ -117,19 +111,6 @@ class IntroActivity : AppIntro(), SlideLeaveInterface {
             switchColor()
         }
 
-        if (!mPermissions.grantedUsageStats()) {
-            addSlide(
-                IdentifiableAppIntroFragment.createInstance(
-                    title = getString(R.string.intro_slide_usage_title),
-                    description = getString(R.string.intro_slide_usage_description),
-                    imageDrawable = R.drawable.undraw_push_notifications,
-                    backgroundColorRes = color,
-                    id = SLIDE_ID_USAGEACCESS,
-                    callback = this
-                ))
-            switchColor()
-        }
-
         addSlide(
             IdentifiableAppIntroFragment.createInstance(
                 title = getString(R.string.intro_slide_done_title),
@@ -168,7 +149,6 @@ class IntroActivity : AppIntro(), SlideLeaveInterface {
     override fun allowSlideLeave(id: String): Boolean {
         return when(id) {
             SLIDE_ID_STORAGE -> mPermissions.grantedStorage()
-            SLIDE_ID_USAGEACCESS -> mPermissions.grantedUsageStats() || mRequestedAppusagePermissions
             SLIDE_ID_NOTIFICATIONS -> mNotificationsRequested
             else -> true
         }
@@ -181,11 +161,6 @@ class IntroActivity : AppIntro(), SlideLeaveInterface {
             SLIDE_ID_STORAGE -> {
                 mCurrentSlideId = SLIDE_ID_STORAGE
                 mPermissions.requestStorage(this)
-            }
-            SLIDE_ID_USAGEACCESS -> {
-                mCurrentSlideId = SLIDE_ID_USAGEACCESS
-                mPermissions.requestUsageStats(this)
-                mRequestedAppusagePermissions = true
             }
             SLIDE_ID_NOTIFICATIONS -> {
                 notificationPermission?.launch(Manifest.permission.POST_NOTIFICATIONS)

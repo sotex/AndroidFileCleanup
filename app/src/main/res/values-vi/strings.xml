@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">disky</string>
-    <string name="apppackage_size_app" translatable="false">Apk</string>
-    <string name="apppackage_size_data">Dữ liệu người dùng</string>
-    <string name="apppackage_size_externalcache">Bộ đệm ngoài</string>
-    <string name="apppackage_size_cache">Bộ đệm</string>
     <string name="apps">Ứng dụng</string>
     <string name="system" translatable="false">Android OS</string>
 
@@ -23,8 +19,6 @@
     <string name="intro_slide_done_description">Bây giờ bạn đã sẵn sàng để bắt đầu!</string>
     <string name="intro_storage_title">Truy cập bộ nhớ</string>
     <string name="intro_storage_description">Disky dựa vào quyền truy cập tất cả các tệp tin. Vui lòng cấp quyền truy cập bộ nhớ khi được nhắc, nếu không ứng dụng sẽ không hoạt động bình thường.</string>
-    <string name="intro_slide_usage_title">Thống kê sử dụng</string>
-    <string name="intro_slide_usage_description">Chúng tôi sử dụng số liệu thống kê sử dụng để tính toán mức sử dụng đĩa của ứng dụng của bạn.</string>
     <string name="contextmenu_file_open">Mở</string>
     <string name="contextmenu_file_openfolder">Mở trong thư mục</string>
     <string name="mainmenu_reload">Tải lại</string>

@@ -2,14 +2,12 @@ package de.felixnuesse.disky.utils
 
 import android.Manifest
 import android.app.Activity
-import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.os.Process
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
@@ -25,7 +23,6 @@ class PermissionManager(private var mContext: Context) {
 
     companion object {
         private const val REQ_ALL_FILES_ACCESS = 3101
-        private const val REQ_USAGE_PERMISSION_ACCESS = 3102
         private const val REQ_NOTIFICATION_ACCESS = 3102
 
         fun getNotificationSettingsIntent(context: Context): Intent {
@@ -62,16 +59,6 @@ class PermissionManager(private var mContext: Context) {
         }
     }
 
-    fun grantedUsageStats(): Boolean {
-        var appop = mContext.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-        val mode = appop.unsafeCheckOpNoThrow(
-            AppOpsManager.OPSTR_GET_USAGE_STATS,
-            Process.myUid(),
-            mContext.packageName
-        )
-        return (mode == AppOpsManager.MODE_ALLOWED);
-    }
-
     fun requestStorage(activity: Activity) {
         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
         intent.data = Uri.fromParts(
@@ -80,20 +67,6 @@ class PermissionManager(private var mContext: Context) {
             null
         )
         activity.startActivityForResult(intent, REQ_ALL_FILES_ACCESS)
-    }
-
-    fun requestUsageStats(activity: Activity, omitPackagename: Boolean = false) {
-        val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-
-        if(!omitPackagename) {
-            intent.data = Uri.fromParts(
-                "package",
-                activity.packageName,
-                null
-            )
-        }
-
-        activity.startActivity(intent)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -109,6 +82,6 @@ class PermissionManager(private var mContext: Context) {
         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             .putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
-        activity.startActivityForResult(intent, REQ_USAGE_PERMISSION_ACCESS)
+        activity.startActivityForResult(intent, REQ_NOTIFICATION_ACCESS)
     }
 }

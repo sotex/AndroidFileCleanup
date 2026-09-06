@@ -56,7 +56,6 @@ import de.felixnuesse.disky.worker.BackgroundWorker
 import de.felixnuesse.disky.ui.utils.LottieColorizer.Companion.colorizeLottie
 import de.felixnuesse.disky.ui.utils.SortingUtils
 import de.felixnuesse.disky.ui.utils.TextFading.Companion.fadeTextview
-import org.woheller69.freeDroidWarn.FreeDroidWarn
 import timber.log.Timber
 
 
@@ -89,7 +88,6 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        FreeDroidWarn.showWarningOnUpgrade(this, BuildConfig.VERSION_CODE);
 
         val sharedPref =
             applicationContext.getSharedPreferences(INTRO_PREFERENCES, MODE_PRIVATE)
@@ -229,7 +227,7 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
     }
 
     override fun onSelectionChanged(count: Int) {
-        if (count > 0 && !currentAdapter?.isSelectionMode()!!) {
+        if (count > 0 && currentAdapter?.isSelectionMode() != true) {
             enterSelectionMode()
         }
         binding.selectionCount.text = getString(R.string.selection_count, count)
@@ -293,31 +291,16 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
 
     fun updateWarningElements() {
 
-        val didntHaveAppusagePermission = binding.warningAppAccess.visibility != View.GONE
         val didntHaveStoragePermission = binding.warningStorageAccess.visibility != View.GONE
-        var hasAppUsage = true
         var hasStorage = true
 
-        binding.warningAppAccess.visibility = View.GONE
         binding.warningStorageAccess.visibility = View.GONE
 
         val permissions = PermissionManager(this)
-        if(!permissions.grantedUsageStats()) {
-            binding.warningAppAccess.visibility = View.VISIBLE
-            hasAppUsage = false
-        }
 
         if(!permissions.grantedStorage()) {
             binding.warningStorageAccess.visibility = View.VISIBLE
             hasStorage = false
-        }
-
-        binding.warningbuttonFixAppPermissions.setOnClickListener {
-            // this is broken. It does not properly direct the user to a working
-            // screen. The screen that opens does not do anything
-            // this is why we omit the package-name, and let the user
-            // manually open the correct app. That works.
-            permissions.requestUsageStats(this, true)
         }
 
         binding.warningbuttonFixStoragePermissions.setOnClickListener {
@@ -326,9 +309,8 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
 
 
         val storageAccessChanged = didntHaveStoragePermission && hasStorage
-        val appusageAccessChanged = didntHaveAppusagePermission && hasAppUsage
 
-        if(storageAccessChanged || appusageAccessChanged) {
+        if(storageAccessChanged) {
             refreshData(true)
         }
     }
@@ -554,8 +536,14 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
         if (currentRoot.parent != null) {
             children.add(0, GoBackUp(currentRoot.parent!!))
         }
-        children.addAll(currentRoot.getChildren())
-        if (currentRoot.getChildren().isEmpty()) {
+        // 应用筛选条件；筛选后若无匹配项则显示提示
+        val filteredChildren = if (filterManager.hasActiveFilters()) {
+            filterManager.filter(currentRoot.getChildren())
+        } else {
+            currentRoot.getChildren()
+        }
+        children.addAll(filteredChildren)
+        if (filteredChildren.isEmpty()) {
             children.add(NoItems())
         }
 
@@ -589,8 +577,10 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
     private fun deleteSelectedItems() {
         val selectedItems = currentAdapter?.getSelectedItems()
         if (!selectedItems.isNullOrEmpty()) {
-            CleanupDialog(this, selectedItems).askDelete()
-            exitSelectionMode()
+            // 弹出确认对话框，用户确认删除后才退出选择模式
+            CleanupDialog(this, selectedItems) {
+                exitSelectionMode()
+            }.askDelete()
         }
     }
 }

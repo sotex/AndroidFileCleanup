@@ -1,6 +1,7 @@
 package de.felixnuesse.disky.scanner
 
 import de.felixnuesse.disky.model.FileCategory
+import de.felixnuesse.disky.model.StorageBranch
 import de.felixnuesse.disky.model.StorageLeaf
 import de.felixnuesse.disky.model.StoragePrototype
 
@@ -17,14 +18,37 @@ class FilterManager {
         if (!hasActiveFilters()) {
             return items
         }
-        
+
         return items.filter { item ->
-            if (item is StorageLeaf) {
-                matches(item)
-            } else {
-                true
+            when (item) {
+                is StorageLeaf -> matches(item)
+                is StorageBranch -> hasMatchingDescendant(item)
+                else -> true
             }
         }
+    }
+
+    /**
+     * 递归判断文件夹（或其子文件夹）中是否存在匹配筛选条件的文件。
+     * 只有包含匹配项的文件夹才会被保留显示。
+     */
+    private fun hasMatchingDescendant(branch: StorageBranch): Boolean {
+        branch.getChildren().forEach { child ->
+            when (child) {
+                is StorageLeaf -> {
+                    if (matches(child)) {
+                        return true
+                    }
+                }
+                is StorageBranch -> {
+                    if (hasMatchingDescendant(child)) {
+                        return true
+                    }
+                }
+                else -> {}
+            }
+        }
+        return false
     }
 
     fun matches(leaf: StorageLeaf): Boolean {

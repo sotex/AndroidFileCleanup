@@ -86,6 +86,8 @@ class RecyclerViewAdapter(
                     binding.size.text = readableFileSize(getCalculatedSize())
                     binding.progressBar.progress = percent
 
+                    // 复用 ViewHolder 时必须先清空监听器，否则设置 isChecked 会误触发上一个条目的回调
+                    binding.checkbox.setOnCheckedChangeListener(null)
                     binding.checkbox.visibility = if (isSelectionMode && storageType == StorageType.FOLDER) View.VISIBLE else View.GONE
                     binding.checkbox.isChecked = selectedItems.contains(this)
 
@@ -127,6 +129,8 @@ class RecyclerViewAdapter(
                     binding.title.text = name
                     binding.size.text = readableFileSize(getCalculatedSize())
 
+                    // 复用 ViewHolder 时必须先清空监听器，否则设置 isChecked 会误触发上一个条目的回调
+                    binding.checkbox.setOnCheckedChangeListener(null)
                     binding.checkbox.visibility = if (isSelectionMode && storageType == StorageType.FILE) View.VISIBLE else View.GONE
                     binding.checkbox.isChecked = selectedItems.contains(this)
 
@@ -185,6 +189,7 @@ class RecyclerViewAdapter(
                         else -> {}
                     }
                     setSelectionCallbackTarget(this)
+                    setRowToggleTarget(this)
                 }
             }
         }
@@ -219,6 +224,18 @@ class RecyclerViewAdapter(
         }
         selectionCallback?.onSelectionChanged(selectedItems.size)
         notifyDataSetChanged()
+    }
+
+    /**
+     * 从长按菜单进入选择模式并选中该条目。
+     * 复选框只有在选择模式下才可见，否则用户无法开始单选。
+     */
+    fun enterAndToggleSelection(item: StoragePrototype) {
+        if (!isSelectionMode) {
+            isSelectionMode = true
+            notifyDataSetChanged()
+        }
+        toggleSelection(item)
     }
 
     fun selectAll() {
@@ -292,6 +309,13 @@ class RecyclerViewAdapter(
                     DeleteDialog(mContext, File(leafFolder!!.getParentPath())).askDelete()
                     true
                 }
+                R.id.action_item_select -> {
+                    // 只有普通文件夹可加入批量选择
+                    if (leafFolder?.storageType == StorageType.FOLDER) {
+                        leafFolder?.let { enterAndToggleSelection(it) }
+                    }
+                    true
+                }
                 R.id.action_folder_app_open -> {
                     leafFolder?.let { startApp(it.name, mContext) }
                     true
@@ -312,6 +336,9 @@ class RecyclerViewAdapter(
             binding.linearLayout.setOnClickListener {
                 if (!isSelectionMode) {
                     callback?.changeFolder(folder)
+                } else if (folder.storageType == StorageType.FOLDER) {
+                    // 选择模式下点击行直接切换选中状态
+                    toggleSelection(folder)
                 }
             }
         }
@@ -385,6 +412,13 @@ class RecyclerViewAdapter(
                     DeleteDialog(mContext, File(leafItem!!.getParentPath())).askDelete()
                     true
                 }
+                R.id.action_item_select -> {
+                    // 只有普通文件可加入批量选择
+                    if (leafItem?.storageType == StorageType.FILE) {
+                        leafItem?.let { enterAndToggleSelection(it) }
+                    }
+                    true
+                }
                 R.id.action_os_help -> {
                     HelpDialog(mContext).help(R.string.help_android_os, R.string.help_android_os_description)
                     true
@@ -403,6 +437,15 @@ class RecyclerViewAdapter(
                     selectedItems.remove(item)
                 }
                 selectionCallback?.onSelectionChanged(selectedItems.size)
+            }
+        }
+
+        fun setRowToggleTarget(item: StoragePrototype) {
+            binding.linearLayout.setOnClickListener {
+                if (isSelectionMode && item.storageType == StorageType.FILE) {
+                    // 选择模式下点击行直接切换选中状态
+                    toggleSelection(item)
+                }
             }
         }
     }

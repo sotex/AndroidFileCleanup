@@ -13,8 +13,13 @@ import de.felixnuesse.disky.model.StorageBranch
 import de.felixnuesse.disky.model.StorageLeaf
 import de.felixnuesse.disky.model.StoragePrototype
 import java.io.File
+import java.net.URI
 
-class CleanupDialog(private var mContext: Context, private var items: List<StoragePrototype>) {
+class CleanupDialog(
+    private var mContext: Context,
+    private var items: List<StoragePrototype>,
+    private val onDeleteComplete: (() -> Unit)? = null
+) {
 
     fun askDelete() {
         val totalSize = items.sumOf { it.getCalculatedSize() }
@@ -36,6 +41,8 @@ class CleanupDialog(private var mContext: Context, private var items: List<Stora
             .setMessage(message)
             .setPositiveButton(R.string.yes_delete) { dialog, which ->
                 executeDelete()
+                // 用户确认删除并执行完毕后，通知调用方（例如退出选择模式）
+                onDeleteComplete?.invoke()
             }
             .setNegativeButton(R.string.no_keep, null)
             .setIcon(R.drawable.icon_delete)
@@ -48,20 +55,28 @@ class CleanupDialog(private var mContext: Context, private var items: List<Stora
 
         items.forEach { item ->
             try {
+                // uri 是 "file:///..." 格式，必须先通过 URI 解析，否则 File 路径无效
                 val file = when (item) {
-                    is StorageLeaf -> File(item.uri)
+                    is StorageLeaf -> File(URI.create(item.uri).path)
                     is StorageBranch -> File(item.getParentPath())
                     else -> null
                 }
 
                 file?.let {
                     if (it.exists()) {
-                        if (it.isDirectory) {
+                        // delete/deleteRecursively 有返回值，必须检查是否真的删除成功
+                        val success = if (it.isDirectory) {
                             it.deleteRecursively()
                         } else {
                             it.delete()
                         }
-                        deletedCount++
+                        if (success) {
+                            deletedCount++
+                        } else {
+                            failedCount++
+                        }
+                    } else {
+                        failedCount++
                     }
                 }
             } catch (e: Exception) {

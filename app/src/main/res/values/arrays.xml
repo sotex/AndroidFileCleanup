@@ -24,6 +24,11 @@
 
     <string-array name="size_options">
         <item>@string/size_option_none</item>
+        <item>@string/size_option_1kb</item>
+        <item>@string/size_option_10kb</item>
+        <item>@string/size_option_50kb</item>
+        <item>@string/size_option_100kb</item>
+        <item>@string/size_option_500kb</item>
         <item>@string/size_option_1mb</item>
         <item>@string/size_option_10mb</item>
         <item>@string/size_option_50mb</item>
@@ -34,6 +39,9 @@
 
     <string-array name="duration_options">
         <item>@string/duration_option_none</item>
+        <item>@string/duration_option_10sec</item>
+        <item>@string/duration_option_20sec</item>
+        <item>@string/duration_option_30sec</item>
         <item>@string/duration_option_1min</item>
         <item>@string/duration_option_5min</item>
         <item>@string/duration_option_10min</item>

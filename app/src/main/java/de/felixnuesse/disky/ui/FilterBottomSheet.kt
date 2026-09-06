@@ -20,8 +20,34 @@ class FilterBottomSheet(
 
     private lateinit var binding: FilterBottomsheetBinding
 
-    private val sizeValues = listOf(0L, 1024L * 1024, 10L * 1024L * 1024, 50L * 1024L * 1024, 100L * 1024L * 1024, 500L * 1024L * 1024, 1024L * 1024L * 1024)
-    private val durationValues = listOf(0L, 60L * 1000, 5L * 60L * 1000, 10L * 60L * 1000, 30L * 60L * 1000, 60L * 60L * 1000)
+    // 顺序必须与 arrays.xml 中的 size_options 保持一致
+    private val sizeValues = listOf(
+        0L,
+        1024L,
+        10L * 1024,
+        50L * 1024,
+        100L * 1024,
+        500L * 1024,
+        1024L * 1024,
+        10L * 1024L * 1024,
+        50L * 1024L * 1024,
+        100L * 1024L * 1024,
+        500L * 1024L * 1024,
+        1024L * 1024L * 1024
+    )
+
+    // 顺序必须与 arrays.xml 中的 duration_options 保持一致
+    private val durationValues = listOf(
+        0L,
+        10L * 1000,
+        20L * 1000,
+        30L * 1000,
+        60L * 1000,
+        5L * 60L * 1000,
+        10L * 60L * 1000,
+        30L * 60L * 1000,
+        60L * 60L * 1000
+    )
     private val resolutionValues = listOf(0, 480 * 640, 720 * 1280, 1080 * 1920, 1440 * 2560, 2160 * 3840)
 
     private var selectedMinSizeIndex = 0
@@ -52,22 +78,7 @@ class FilterBottomSheet(
     }
 
     private fun setupChips() {
-        val chipCategoryMap = mapOf(
-            R.id.chip_audio to FileCategory.AUDIO,
-            R.id.chip_video to FileCategory.VIDEO,
-            R.id.chip_image to FileCategory.IMAGE,
-            R.id.chip_document to FileCategory.DOCUMENT,
-            R.id.chip_archive to FileCategory.ARCHIVE,
-            R.id.chip_apk to FileCategory.APK
-        )
-
-        binding.filterTypeChips.setOnCheckedStateChangeListener { _, checkedIds ->
-            val selectedCategories = mutableSetOf<FileCategory>()
-            checkedIds.forEach { id ->
-                chipCategoryMap[id]?.let { selectedCategories.add(it) }
-            }
-            filterManager.selectedCategories = selectedCategories
-        }
+        // 分类选择只在点击"应用"时读取，避免用户直接关闭弹窗时筛选被意外修改
     }
 
     private fun setupDropdowns() {
@@ -144,6 +155,21 @@ class FilterBottomSheet(
     }
 
     private fun applyFilters() {
+        // 读取当前勾选的文件分类
+        val chipCategoryMap = mapOf(
+            R.id.chip_audio to FileCategory.AUDIO,
+            R.id.chip_video to FileCategory.VIDEO,
+            R.id.chip_image to FileCategory.IMAGE,
+            R.id.chip_document to FileCategory.DOCUMENT,
+            R.id.chip_archive to FileCategory.ARCHIVE,
+            R.id.chip_apk to FileCategory.APK
+        )
+        val selectedCategories = mutableSetOf<FileCategory>()
+        binding.filterTypeChips.checkedChipIds.forEach { id ->
+            chipCategoryMap[id]?.let { selectedCategories.add(it) }
+        }
+        filterManager.selectedCategories = selectedCategories
+
         val minSize = sizeValues[selectedMinSizeIndex]
         val maxSize = if (selectedMaxSizeIndex == 0) Long.MAX_VALUE else sizeValues[selectedMaxSizeIndex]
         filterManager.setSizeRange(minSize, maxSize)

@@ -60,15 +60,8 @@ class Scanner(private var mContext: Context, private var callback: ScannerCallba
         // Don't scan for system and apps on external sd card
         if(selectedStorage.isPrimary && rootElement != null) {
             if(isAppFolderUpdate) {
-
-                val nowMulti = System.currentTimeMillis()
-                AppScanner(mContext, callback).scanApps(rootElement, selectedStorage)
-                Timber.tag(tag())
-                    .e("Time: ${System.currentTimeMillis() - nowMulti} ms (AppScanner)")
-
-                if(stopped) {
-                    return null
-                }
+                // 应用占用统计（AppScanner）依赖 PACKAGE_USAGE_STATS 权限，
+                // 软件不再申请该权限，因此此处直接跳过，应用占用将计入系统占用。
             }
             printRuntimeTime("app scan")
             if (subfolder.isBlank()) {

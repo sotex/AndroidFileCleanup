@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">disky</string>
-    <string name="apppackage_size_app" translatable="false">Apk</string>
-    <string name="apppackage_size_data">Userdata</string>
-    <string name="apppackage_size_externalcache">External Cache</string>
-    <string name="apppackage_size_cache">Cache</string>
     <string name="apps">Apps</string>
     <string name="system" translatable="false">Android OS</string>
 
@@ -40,8 +36,6 @@
     <string name="intro_slide_done_description">You are now ready to start!</string>
     <string name="intro_storage_title">Storage access</string>
     <string name="intro_storage_description">Disky relies on the permission to access all files. Please grant storage access when prompted. \n\n Disky requires this permission!</string>
-    <string name="intro_slide_usage_title">Usage Statistics</string>
-    <string name="intro_slide_usage_description">We use usage statistics to calculate the disk usage by your apps.</string>
     <string name="contextmenu_file_open">Open</string>
     <string name="contextmenu_file_openfolder">Open in folder</string>
     <string name="mainmenu_reload">Reload</string>
@@ -60,6 +54,7 @@
     <string name="free">Free:</string>
     <string name="warning_removable_storage">Warning! Removable Storage will be unreliable! Appdata might not be included.</string>
     <string name="contextmenu_delete">Delete</string>
+    <string name="contextmenu_select">选择</string>
     <string name="yes_delete">Yes, delete permanently!</string>
     <string name="no_keep">No, keep it.</string>
     <string name="delete_confirmation_text">Are you sure you want to delete \"%1$s\"? This cannot be undone!</string>
@@ -104,7 +99,6 @@
     <string name="missingpermission_button_fix">Fix!</string>
     <string name="icon_warning_content_description">Warning Icon in red, Circle with an Exclamation Mark</string>
     <string name="warning_storage_permission_missing">Warning! We do not have access to scan all your files! This will create nonsense-results!</string>
-    <string name="warning_appusage_permission_missing">Warning! We are not allowed to scan your apps. Apps will now be counted as system usage!</string>
 
     <string name="filter_title">筛选条件</string>
     <string name="filter_type">文件类型</string>
@@ -127,6 +121,11 @@
     <string name="file_category_apk">安装包</string>
 
     <string name="size_option_none">不限制</string>
+    <string name="size_option_1kb">1 KB</string>
+    <string name="size_option_10kb">10 KB</string>
+    <string name="size_option_50kb">50 KB</string>
+    <string name="size_option_100kb">100 KB</string>
+    <string name="size_option_500kb">500 KB</string>
     <string name="size_option_1mb">1 MB</string>
     <string name="size_option_10mb">10 MB</string>
     <string name="size_option_50mb">50 MB</string>
@@ -135,6 +134,9 @@
     <string name="size_option_1gb">1 GB</string>
 
     <string name="duration_option_none">不限制</string>
+    <string name="duration_option_10sec">10 秒</string>
+    <string name="duration_option_20sec">20 秒</string>
+    <string name="duration_option_30sec">30 秒</string>
     <string name="duration_option_1min">1 分钟</string>
     <string name="duration_option_5min">5 分钟</string>
     <string name="duration_option_10min">10 分钟</string>

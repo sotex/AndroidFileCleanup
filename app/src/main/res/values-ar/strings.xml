@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">Disky</string>
-    <string name="apppackage_size_app" translatable="false">APK</string>
-    <string name="apppackage_size_data">بيانات المستخدم</string>
-    <string name="apppackage_size_externalcache">ذاكرة التخزين المؤقت الخارجية</string>
-    <string name="apppackage_size_cache">ذاكرة التخزين المؤقت</string>
     <string name="apps">التطبيقات</string>
     <string name="system" translatable="false">نظام أندرويد</string>
 
@@ -23,8 +19,6 @@
     <string name="intro_slide_done_description">أنت الآن جاهز للبدء!</string>
     <string name="intro_storage_title">وصول التخزين</string>
     <string name="intro_storage_description">يعتمد Disky على الإذن للوصول إلى جميع الملفات. يرجى منح الوصول إلى التخزين عند الطلب، وإلا فلن يعمل التطبيق بشكل صحيح.</string>
-    <string name="intro_slide_usage_title">إحصائيات الاستخدام</string>
-    <string name="intro_slide_usage_description">نستخدم إحصائيات الاستخدام لحساب استخدام القرص بواسطة تطبيقاتك.</string>
     <string name="contextmenu_file_open">فتح</string>
     <string name="contextmenu_file_openfolder">فتح في المجلد</string>
     <string name="mainmenu_reload">إعادة تحميل</string>

@@ -1,7 +1,4 @@
 <resources>
-    <string name="apppackage_size_data">Пользовательские данные</string>
-    <string name="apppackage_size_externalcache">Внешний кеш</string>
-    <string name="apppackage_size_cache">Кеш</string>
     <string name="apps">Приложения</string>
 
     <string name="foreground_service_notification_channel_name">Сервис сканирования Disky</string>
@@ -17,8 +14,6 @@
     <string name="intro_slide_done_description">Теперь вы готовы начать!</string>
     <string name="intro_storage_title">Доступ к хранилищу</string>
     <string name="intro_storage_description">Disky полагается на разрешение на доступ ко всем файлам. Пожалуйста, предоставьте доступ к хранилищу при запросе, иначе приложение не будет работать правильно.</string>
-    <string name="intro_slide_usage_title">Статистика использования</string>
-    <string name="intro_slide_usage_description">Мы используем статистику использования для вычисления использования диска по вашим приложениям.</string>
     <string name="contextmenu_file_open">Открыть</string>
     <string name="contextmenu_file_openfolder">Открыть в папке</string>
     <string name="mainmenu_reload">Перегрузить</string>
