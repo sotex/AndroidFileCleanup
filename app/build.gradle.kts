@@ -25,6 +25,15 @@ android {
         buildConfig = true
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file(project.findProperty("MYAPP_RELEASE_STORE_FILE") as String)
+            storePassword = project.findProperty("MYAPP_RELEASE_STORE_PASSWORD") as String
+            keyAlias = project.findProperty("MYAPP_RELEASE_KEY_ALIAS") as String
+            keyPassword = project.findProperty("MYAPP_RELEASE_KEY_PASSWORD") as String
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -32,13 +41,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     applicationVariants.all{
         outputs.all {
             if(name.contains("release"))
-                (this as BaseVariantOutputImpl).outputFileName = "disky-release-v$versionName.apk"
+                (this as BaseVariantOutputImpl).outputFileName = "AndroidFileCleanup-release-v$versionName.apk"
         }
     }
     compileOptions {

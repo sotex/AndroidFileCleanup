@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Disky</string>
+    <string name="app_name" translatable="false">AndroidFileCleanup</string>
     <string name="apps">التطبيقات</string>
     <string name="system" translatable="false">نظام أندرويد</string>
 
