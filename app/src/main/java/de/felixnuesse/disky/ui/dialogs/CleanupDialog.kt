@@ -1,12 +1,9 @@
 package de.felixnuesse.disky.ui.dialogs
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.felixnuesse.disky.R
-import de.felixnuesse.disky.background.ScanService
 import de.felixnuesse.disky.extensions.tag
 import de.felixnuesse.disky.extensions.readableFileSize
 import de.felixnuesse.disky.model.StorageBranch
@@ -18,7 +15,7 @@ import java.net.URI
 class CleanupDialog(
     private var mContext: Context,
     private var items: List<StoragePrototype>,
-    private val onDeleteComplete: (() -> Unit)? = null
+    private val onDeleteComplete: ((List<StoragePrototype>) -> Unit)? = null
 ) {
 
     fun askDelete() {
@@ -40,17 +37,19 @@ class CleanupDialog(
             .setTitle(R.string.cleanup_title)
             .setMessage(message)
             .setPositiveButton(R.string.yes_delete) { dialog, which ->
-                executeDelete()
-                // 用户确认删除并执行完毕后，通知调用方（例如退出选择模式）
-                onDeleteComplete?.invoke()
+                val deletedItems = executeDelete()
+                onDeleteComplete?.invoke(deletedItems)
             }
             .setNegativeButton(R.string.no_keep, null)
             .setIcon(R.drawable.icon_delete)
             .show()
     }
 
-    private fun executeDelete() {
-        var deletedCount = 0
+    /**
+     * 执行删除，返回成功删除的项列表
+     */
+    private fun executeDelete(): List<StoragePrototype> {
+        val deletedItems = mutableListOf<StoragePrototype>()
         var failedCount = 0
 
         items.forEach { item ->
@@ -64,14 +63,13 @@ class CleanupDialog(
 
                 file?.let {
                     if (it.exists()) {
-                        // delete/deleteRecursively 有返回值，必须检查是否真的删除成功
                         val success = if (it.isDirectory) {
                             it.deleteRecursively()
                         } else {
                             it.delete()
                         }
                         if (success) {
-                            deletedCount++
+                            deletedItems.add(item)
                         } else {
                             failedCount++
                         }
@@ -85,16 +83,11 @@ class CleanupDialog(
             }
         }
 
-        sendRefreshBroadcast()
-
         if (failedCount > 0) {
-            showResultMessage(deletedCount, failedCount)
+            showResultMessage(deletedItems.size, failedCount)
         }
-    }
 
-    private fun sendRefreshBroadcast() {
-        val resultIntent = Intent(ScanService.SCAN_REFRESH_REQUESTED)
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(resultIntent)
+        return deletedItems
     }
 
     private fun showResultMessage(deletedCount: Int, failedCount: Int) {

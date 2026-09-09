@@ -65,6 +65,9 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
 
     private var rootElement: StoragePrototype? = null
     private var currentElement: StoragePrototype? = null
+    // 缓存扫描结果的物理总量和可用空间，删除后局部更新
+    private var rootTotal: Long = 0
+    private var rootFree: Long = 0
 
     private lateinit var storageManager: StorageManager
     private var selectedStorage = ""
@@ -233,6 +236,11 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
         binding.selectionCount.text = getString(R.string.selection_count, count)
     }
 
+    override fun onItemDeleted(item: StoragePrototype) {
+        // 从内存树中移除已删除项并局部刷新，避免全量重新扫描
+        removeDeletedFromTree(listOf(item))
+    }
+
     override fun scanComplete(result: StorageResult) {
 
 
@@ -279,7 +287,9 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
                     rootElement?.getCalculatedSize(true)
                     currentElement?.let { changeFolder(it) }
                 }
-                updateStaticElements(rootElement!!, result.total, result.free)
+                rootTotal = result.total
+                rootFree = result.free
+                updateStaticElements(rootElement!!, rootTotal, rootFree)
             } else {
                 Timber.tag("POST_SCAN").e("internalRootElement was null, aborting display")
             }
@@ -577,10 +587,36 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
     private fun deleteSelectedItems() {
         val selectedItems = currentAdapter?.getSelectedItems()
         if (!selectedItems.isNullOrEmpty()) {
-            // 弹出确认对话框，用户确认删除后才退出选择模式
-            CleanupDialog(this, selectedItems) {
+            CleanupDialog(this, selectedItems) { deletedItems ->
                 exitSelectionMode()
+                // 从内存树中移除已删除项并局部刷新，避免全量重新扫描
+                removeDeletedFromTree(deletedItems)
             }.askDelete()
+        }
+    }
+
+    /**
+     * 从内存存储树中移除已删除的项，并局部刷新列表和概览栏。
+     * 不触发 ScanService 全量重新扫描。
+     */
+    private fun removeDeletedFromTree(deletedItems: List<StoragePrototype>) {
+        var totalDeletedSize = 0L
+
+        deletedItems.forEach { item ->
+            totalDeletedSize += item.getCalculatedSize()
+            val parent = item.parent
+            parent?.getChildren()?.remove(item)
+        }
+
+        if (totalDeletedSize > 0) {
+            // 更新可用空间
+            rootFree += totalDeletedSize
+            // 强制重新计算所有祖先节点的缓存大小
+            rootElement?.getCalculatedSize(true)
+            // 刷新当前文件夹列表
+            currentElement?.let { showFolder(it) }
+            // 刷新概览栏
+            rootElement?.let { updateStaticElements(it, rootTotal, rootFree) }
         }
     }
 }

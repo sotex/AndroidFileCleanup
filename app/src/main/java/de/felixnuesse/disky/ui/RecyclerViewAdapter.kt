@@ -56,6 +56,7 @@ class RecyclerViewAdapter(
 
     interface SelectionCallback {
         fun onSelectionChanged(count: Int)
+        fun onItemDeleted(item: StoragePrototype)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -306,7 +307,10 @@ class RecyclerViewAdapter(
                     true
                 }
                 R.id.action_folder_delete -> {
-                    DeleteDialog(mContext, File(leafFolder!!.getParentPath())).askDelete()
+                    val folder = leafFolder!!
+                    DeleteDialog(mContext, File(folder.getParentPath()), folder) {
+                        selectionCallback?.onItemDeleted(folder)
+                    }.askDelete()
                     true
                 }
                 R.id.action_item_select -> {
@@ -409,7 +413,10 @@ class RecyclerViewAdapter(
                     true
                 }
                 R.id.action_file_delete -> {
-                    DeleteDialog(mContext, File(leafItem!!.getParentPath())).askDelete()
+                    val item = leafItem!!
+                    DeleteDialog(mContext, File(item.getParentPath()), item) {
+                        selectionCallback?.onItemDeleted(item)
+                    }.askDelete()
                     true
                 }
                 R.id.action_item_select -> {

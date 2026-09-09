@@ -1,16 +1,19 @@
 package de.felixnuesse.disky.ui.dialogs
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.felixnuesse.disky.R
-import de.felixnuesse.disky.background.ScanService
 import de.felixnuesse.disky.extensions.tag
+import de.felixnuesse.disky.model.StoragePrototype
 import java.io.File
 
-class DeleteDialog(private var mContext: Context, private var file: File) {
+class DeleteDialog(
+    private var mContext: Context,
+    private var file: File,
+    private var item: StoragePrototype? = null,
+    private val onDeleteComplete: (() -> Unit)? = null
+) {
 
     fun askDelete() {
         val title = if(file.isDirectory) {
@@ -30,12 +33,12 @@ class DeleteDialog(private var mContext: Context, private var file: File) {
                     } else {
                         file.delete()
                     }
+                    // 删除成功后通知调用方局部刷新，不再全量重新扫描
+                    onDeleteComplete?.invoke()
                 } catch (e: Exception) {
                     Log.e(tag(), e.message.toString())
                 }
-                val resultIntent = Intent(ScanService.SCAN_REFRESH_REQUESTED)
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(resultIntent)
-            } // A null listener allows the button to dismiss the dialog and take no further action.
+            }
             .setNegativeButton(R.string.no_keep, null)
             .setIcon(R.drawable.icon_delete)
             .show()
