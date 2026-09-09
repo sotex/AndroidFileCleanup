@@ -89,7 +89,8 @@ class RecyclerViewAdapter(
 
                     // 复用 ViewHolder 时必须先清空监听器，否则设置 isChecked 会误触发上一个条目的回调
                     binding.checkbox.setOnCheckedChangeListener(null)
-                    binding.checkbox.visibility = if (isSelectionMode && storageType == StorageType.FOLDER) View.VISIBLE else View.GONE
+                    // 只有普通文件夹可勾选，系统/应用类型隐藏复选框
+                    binding.checkbox.visibility = if (storageType == StorageType.FOLDER) View.VISIBLE else View.GONE
                     binding.checkbox.isChecked = selectedItems.contains(this)
 
                     if(storageType == StorageType.APP_COLLECTION) {
@@ -132,7 +133,8 @@ class RecyclerViewAdapter(
 
                     // 复用 ViewHolder 时必须先清空监听器，否则设置 isChecked 会误触发上一个条目的回调
                     binding.checkbox.setOnCheckedChangeListener(null)
-                    binding.checkbox.visibility = if (isSelectionMode && storageType == StorageType.FILE) View.VISIBLE else View.GONE
+                    // 只有普通文件可勾选，系统/应用类型隐藏复选框
+                    binding.checkbox.visibility = if (storageType == StorageType.FILE) View.VISIBLE else View.GONE
                     binding.checkbox.isChecked = selectedItems.contains(this)
 
                     val leaf = this
@@ -349,12 +351,17 @@ class RecyclerViewAdapter(
 
         fun setSelectionCallbackTarget(item: StoragePrototype) {
             binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
+                // 点击复选框即进入选择模式
+                if (!isSelectionMode) {
+                    isSelectionMode = true
+                }
                 if (isChecked) {
                     selectedItems.add(item)
                 } else {
                     selectedItems.remove(item)
                 }
                 selectionCallback?.onSelectionChanged(selectedItems.size)
+                notifyDataSetChanged()
             }
         }
     }
@@ -438,12 +445,17 @@ class RecyclerViewAdapter(
 
         fun setSelectionCallbackTarget(item: StoragePrototype) {
             binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
+                // 点击复选框即进入选择模式
+                if (!isSelectionMode) {
+                    isSelectionMode = true
+                }
                 if (isChecked) {
                     selectedItems.add(item)
                 } else {
                     selectedItems.remove(item)
                 }
                 selectionCallback?.onSelectionChanged(selectedItems.size)
+                notifyDataSetChanged()
             }
         }
 
