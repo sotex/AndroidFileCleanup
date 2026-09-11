@@ -51,6 +51,36 @@ class FilterManager {
         return false
     }
 
+    /**
+     * 递归计算筛选结果的总大小。
+     * 只统计匹配筛选条件的文件大小；文件夹仅累加其中匹配文件的大小，
+     * 而非文件夹的整体大小，保证筛选后概览栏显示的是筛选结果的大小。
+     *
+     * @param items 待统计的文件/文件夹列表
+     * @return 筛选结果的总大小（字节）
+     */
+    fun calculateFilteredSize(items: List<StoragePrototype>): Long {
+        var totalSize = 0L
+        items.forEach { item ->
+            when (item) {
+                is StorageLeaf -> {
+                    // 文件匹配筛选条件时累加其大小
+                    if (matches(item)) {
+                        totalSize += item.getCalculatedSize()
+                    }
+                }
+                is StorageBranch -> {
+                    // 文件夹包含匹配文件时，递归累加其中匹配文件的大小
+                    if (hasMatchingDescendant(item)) {
+                        totalSize += calculateFilteredSize(item.getChildren())
+                    }
+                }
+                else -> {}
+            }
+        }
+        return totalSize
+    }
+
     fun matches(leaf: StorageLeaf): Boolean {
         if (!hasActiveFilters()) {
             return true

@@ -77,6 +77,9 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
     private lateinit var filterManager: FilterManager
     private var currentAdapter: RecyclerViewAdapter? = null
 
+    // 标记当前是否处于选择模式（UI 层状态），用于控制操作栏的显示与隐藏
+    private var selectionModeActive = false
+
     companion object {
         const val APP_PREFERENCES = "APP_PREFERENCES"
         const val APP_PREFERENCE_SORTORDER = "APP_PREFERENCE_SORTORDER"
@@ -230,10 +233,16 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
     }
 
     override fun onSelectionChanged(count: Int) {
-        if (count > 0 && currentAdapter?.isSelectionMode() != true) {
-            enterSelectionMode()
+        if (count > 0) {
+            // 只要有任意文件或文件夹被勾选，立即进入选择模式并显示操作栏，无需全选
+            if (!selectionModeActive) {
+                enterSelectionMode()
+            }
+            binding.selectionCount.text = getString(R.string.selection_count, count)
+        } else if (selectionModeActive) {
+            // 所有勾选都被取消时，自动退出选择模式并隐藏操作栏
+            exitSelectionMode()
         }
-        binding.selectionCount.text = getString(R.string.selection_count, count)
     }
 
     override fun onItemDeleted(item: StoragePrototype) {
@@ -444,7 +453,12 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
             if(base == 0L) {
                 base = 1L
             }
-            val used = currentRoot.getCalculatedSize(true)
+            // 应用筛选后显示筛选结果的大小，而非总文件大小
+            val used = if (filterManager.hasActiveFilters()) {
+                filterManager.calculateFilteredSize(currentRoot.getChildren())
+            } else {
+                currentRoot.getCalculatedSize(true)
+            }
             val currentlyUsedPerc = used.div(base.toDouble())
             Timber.tag("updateStaticElements").e("rfs used: ${readableFileSize(used)}")
             fadeTextview(
@@ -565,12 +579,16 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
         val filterBottomSheet = FilterBottomSheet(filterManager, object : FilterBottomSheet.FilterCallback {
             override fun onFilterApplied(filterManager: FilterManager) {
                 currentElement?.let { showFolder(it) }
+                // 筛选条件变化后，同步刷新概览栏，使其显示筛选结果的大小
+                rootElement?.let { updateStaticElements(it, rootTotal, rootFree) }
             }
         })
         filterBottomSheet.show(supportFragmentManager, FilterBottomSheet.TAG)
     }
 
     private fun enterSelectionMode() {
+        // 先置位标志，避免后续回调重复进入
+        selectionModeActive = true
         currentAdapter?.setSelectionMode(true)
         binding.selectionToolbar.visibility = View.VISIBLE
         binding.overview.visibility = View.GONE
@@ -578,6 +596,8 @@ class MainActivity : AppCompatActivity(), ChangeFolderCallback, ScanCompleteCall
     }
 
     private fun exitSelectionMode() {
+        // 先重置标志，setSelectionMode(false) 内部回调 onSelectionChanged(0) 时不会再递归进入
+        selectionModeActive = false
         currentAdapter?.setSelectionMode(false)
         binding.selectionToolbar.visibility = View.GONE
         binding.overview.visibility = View.VISIBLE
