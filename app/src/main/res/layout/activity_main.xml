@@ -25,7 +25,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp"
+        android:padding="12dp"
+        android:elevation="8dp"
+        android:background="?attr/colorSurface"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,6 +35,7 @@
 
         <Button
             android:id="@+id/buttonCancelSelection"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/cancel_selection" />
@@ -44,14 +47,17 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/selection_count"
+            android:textColor="?attr/colorOnSurface"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/buttonDeleteSelected"
+            style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete_selected"
-            android:textColor="?attr/colorError" />
+            android:backgroundTint="?attr/colorError"
+            android:textColor="?attr/colorOnError" />
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView

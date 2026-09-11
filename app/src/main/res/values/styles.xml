@@ -13,14 +13,14 @@
     <style name="Widget.App.LinearProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
         <item name="trackThickness">6dp</item>
         <item name="trackCornerRadius">4dp</item>
-        <item name="indicatorColor">?attr/colorLinearIndicator</item>
+        <item name="indicatorColor">?attr/colorPrimary</item>
         <item name="trackStopIndicatorSize">0dp</item>
     </style>
 
     <style name="BaseCircularProgressIndicator" parent="Widget.Material3.CircularProgressIndicator">
         <item name="trackThickness">4dp</item>
         <item name="trackCornerRadius">4dp</item>
-        <item name="indicatorColor">?attr/colorOnSecondaryContainer</item>
+        <item name="indicatorColor">?attr/colorPrimary</item>
         <item name="trackStopIndicatorSize">0dp</item>
     </style>
 
@@ -28,11 +28,13 @@
         <item name="indicatorColor">?attr/colorCircularBackground</item>
     </style>
 
-    <!-- Card Styles need to be applied to the card directly.-->
+    <!-- 卡片使用 surface 色，加细描边提升层次 -->
     <style name="PrimaryCardView" parent="Widget.Material3.CardView.Filled">
-        <item name="cardBackgroundColor">?attr/colorSecondaryContainer</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
         <item name="cardCornerRadius">@dimen/cardCornerRadius</item>
         <item name="contentPadding">@dimen/cardPadding</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">?attr/colorOutlineVariant</item>
     </style>
 
     <style name="PopupMenu" parent="android:Widget.Material.PopupMenu">
@@ -40,10 +42,8 @@
         <item name="android:popupElevation">0dp</item>
     </style>
 
-    <!-- Todo: Check if this is actually used -->
+    <!-- 顶部菜单：去掉硬编码颜色，跟随主题 -->
     <style name="MainMenu" parent="android:Widget.Material.PopupMenu">
-        <item name="android:textColorPrimary">#fa0</item>
-        <item name="android:iconTint">@color/intro_color2</item>
         <item name="android:popupBackground">@drawable/shape_popup_background</item>
         <item name="android:popupElevation">0dp</item>
     </style>
@@ -57,7 +57,7 @@
         <item name="bottomSheetStyle">@style/ModalBottomSheet</item>
     </style>
 
-    <style name="BottomSheetButton" parent="Widget.Material3.Button.IconButton">
+    <style name="BottomSheetButton" parent="Widget.Material3.Button">
         <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
         <item name="backgroundTint">?attr/colorPrimaryContainer</item>
         <item name="cornerRadius">8dp</item>
